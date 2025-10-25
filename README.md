@@ -52,8 +52,10 @@ The architecture is centered on the **Agentic Workflow**:
 
 ### Agentic Workflow Diagram
 
-**[<img width="1024" height="1536" alt="Architecture diagram" src="https://github.com/user-attachments/assets/7e808cb1-96a6-4c5a-bc22-35cc4b81f75b" />
-]**
+
+
+<img width="500px" height="500px" alt="Architecture diagram" src="https://github.com/user-attachments/assets/7e808cb1-96a6-4c5a-bc22-35cc4b81f75b" />
+
 
 
 ---
