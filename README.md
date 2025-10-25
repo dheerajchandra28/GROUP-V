@@ -56,20 +56,33 @@ The architecture is centered on the **Agentic Workflow**:
 
 <img width="500px" height="500px" alt="Architecture diagram" src="https://github.com/user-attachments/assets/7e808cb1-96a6-4c5a-bc22-35cc4b81f75b" />
 
-
-
+## Workflow :-
+Query → Reason → Call RAG Tool → Retrieve → Generate Answer
 ---
 
 ## 🛠️ Tech Stack
 
-| Category | Tools Used |
-| :--- | :--- |
-| **Framework** | Streamlit |
-| **AI Orchestration** | **LangChain** (`AgentExecutor`, `Tool`, `create_react_agent`) |
-| **Local LLM (MCP)** | **Ollama** (serving the **`phi3`** model) |
-| **Vector Database** | **ChromaDB** |
-| **Embeddings** | Sentence-Transformers (`all-MiniLM-L6-v2`) on **CUDA** |
-| **TTS Engine** | Coqui TTS on **CUDA** |
+### 🧠 Tech Stack Overview
+
+### 💻 Frontend & Backend Stack
+
+| **Frontend**        | **Tools Used** |
+|----------------------|----------------|
+| **Frontend Framework** | React (with functional components & hooks) |
+| **UI Styling**          | Tailwind CSS |
+| **State Management**    | React Context API / useState & useEffect hooks |
+| **Backend Language**    | Python |
+| **Backend Framework**   | Flask (serving API endpoints) |
+
+
+
+| **Backend**              | **Tools Used** |
+|----------------------------|----------------|
+| **AI Orchestration**       | LangChain (`AgentExecutor`, `Tool`, `create_react_agent`) |
+| **Local LLM (MCP/Synth)**  | Ollama (serving the `phi3` model) |
+| **Vector Database**        | ChromaDB |
+| **Embeddings**             | Sentence-Transformers (`all-MiniLM-L6-v2`) on **CUDA** |
+| **TTS Engine**             | Coqui TTS on **CUDA** |
 
 ---
 
