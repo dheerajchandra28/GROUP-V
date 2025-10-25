@@ -1,88 +1,112 @@
 # Advanced Offline RAG Assistant: The Uni-RAG Agent
 
-![Python](https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.35%2B-red?style=for-the-badge&logo=streamlit)
+![Python](https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python)
+![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-green?style=for-the-badge&logo=fastapi)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38B2AC?style=for-the-badge&logo=tailwind-css)
 ![LangChain](https://img.shields.io/badge/LangChain-0.2%2B-green?style=for-the-badge)
-![Agentic AI](https://img.shields.io/badge/Agentic%20AI-ReAct%20MCP-blueviolet?style=for-the-badge)
+![Tesseract](https://img.shields.io/badge/OCR-Tesseract-orange?style=for-the-badge)
 ![CUDA](https://img.shields.io/badge/NVIDIA%20CUDA-Enabled-76B900?style=for-the-badge&logo=nvidia)
 
-An advanced, **Zero-Trust**, and completely **offline Agentic Retrieval-Augmented Generation (RAG)** system built with Streamlit and LangChain. This application transforms conversational AI by handling complex, multi-step queries entirely on a secure local machine, providing **Grounded Answers**.
+An advanced, **Zero-Trust**, and completely **offline Retrieval-Augmented Generation (RAG)** system built with a **React frontend**, **FastAPI backend**, and **LangChain**. This application enables secure, local conversational AI capable of processing various document types (including scanned PDFs via OCR) and providing answers grounded in the provided context.
 
 ---
 
 ## 📖 Table of Contents
 - [About The Project](#-about-the-project)
 - [✨ Key Features](#-key-features)
-- [🏛️ System Architecture (The Local Agentic MCP)](#️-system-architecture-the-local-agentic-mcp)
+- [🏛️ System Architecture](#️-system-architecture)
 - [🛠️ Tech Stack](#-tech-stack)
 - [🚀 Getting Started](#-getting-started)
-- [💻 Usage & Demo](#-usage-&-demo)
+- [💻 Usage & Demo](#-usage--demo)
 - [🛣️ Future Work](#-future-work)
 
 ---
 
 ## 🏛️ About The Project
 
-The **Uni-RAG Agent** solves the critical challenge of deploying powerful, conversational AI in environments that demand **Zero-Trust Data Privacy**. Unlike cloud-based RAG solutions, this system runs entirely on your local machine using local Large Language Models (LLMs) and GPU acceleration.
+The **Uni-RAG Agent** addresses the need for powerful conversational AI in environments demanding **Zero-Trust Data Privacy**. Unlike cloud-dependent solutions, this system runs entirely locally using local Large Language Models (LLMs), local vector storage, and local OCR processing, accelerated by GPU where available. It features a modern web interface built with React for user interaction.
 
-The core RAG pipeline has been upgraded to an **Agentic Control Plane (MCP)** that performs **Multi-Step Reasoning** (using the ReAct framework), allowing it to decompose complex user questions into a sequence of precise, verifiable searches across multiple documents.
+While the original concept involved a more complex agentic workflow (hence the name), the current implementation focuses on a robust, offline RAG pipeline with enhanced document processing capabilities.
 
 ---
 
 ## ✨ Key Features
 
-* **Local Agentic Control Plane (MCP):** Uses a **ReAct Agent** to analyze multi-part questions, determine the necessary steps (Task Decomposition), call the RAG Tool multiple times if needed, and synthesize the final answer. This is the core innovation over standard RAG.
-* **Zero-Trust Data Privacy (100% Offline):** After initial model downloads, the entire application runs without any internet connection. All components, including the LLM (**Ollama/phi3**), are local, guaranteeing absolute data privacy.
-* **Grounded & Verifiable Answers:** The system enforces the LLM to use **embedded source citations** (`[File Name, Page X]`) for every factual claim based on the retrieved metadata. This provides full transparency and meets audit requirements.
-* **GPU Acceleration (CUDA):** Leverages an NVIDIA GPU for fast document processing (`HuggingFaceEmbeddings`) and fast offline **Text-to-Speech (TTS)** generation (`Coqui TTS`).
-* **Persistent Knowledge Base:** Supports indexing and searching an entire local folder, with incremental updates for new files.
+* **Advanced RAG Pipeline:** Efficiently retrieves relevant information from indexed documents to provide context-aware answers.
+* **Zero-Trust Data Privacy (100% Offline):** After initial model downloads, the entire application (frontend, backend, LLM) runs without internet access, ensuring data never leaves the local machine.
+* **OCR for Scanned PDFs & Handwriting:** Integrates **Tesseract OCR** via `pdf2image` and `pytesseract` to extract text from image-based PDFs, enabling processing of scanned documents and those containing basic handwriting.
+* **Grounded Answers:** Provides source document and page number information (when available via OCR/metadata) alongside answers generated by the local LLM (**Ollama/phi3**), promoting transparency.
+* **GPU Acceleration (CUDA):** Leverages an NVIDIA GPU for faster document embedding (`HuggingFaceEmbeddings`) and offline **Text-to-Speech (TTS)** generation (`Coqui TTS`).
+* **Persistent Knowledge Base:** Indexes and searches a local folder of documents (`.pdf`, `.docx`), automatically processing new files added to the designated directory.
+* **Single File Chat with Caching:** Allows temporary chat sessions with individually uploaded files, using in-memory caching (based on file hash) to avoid reprocessing the same file repeatedly.
+* **Modern Web Interface:** A responsive frontend built with **React**, **Vite**, **Tailwind CSS**, and **shadcn/ui** for a clean user experience. Includes basic 3D elements via **React Three Fiber**.
 
 ---
 
-## 🏛️ System Architecture (The Local Agentic MCP)
+## 🏛️ System Architecture
 
-The architecture is centered on the **Agentic Workflow**:
+The system follows a client-server architecture designed for local operation:
 
-1.  **User Input:** User asks a complex question (e.g., "What was the Q3 budget, and what is the risk mentioned on page 5 of the Q4 document?").
-2.  **Local Agentic MCP (Executor):** The Agent (LLaMA model running on Ollama) takes control and initiates the ReAct Loop.
-    * **Thought:** The Agent plans the steps (e.g., "First search Q3, then search Q4").
-    * **Action:** The Agent calls the **`document_search_tool`** (custom RAG tool).
-3.  **Tool (Custom RAG Retriever):** The tool searches the local **ChromaDB** and returns relevant text chunks **with File/Page Metadata**.
-4.  **Iteration & Final Synthesis:** The Agent iterates the loop until all facts are retrieved, and then synthesizes a single, coherent, and **Grounded Answer**.
+1.  **User Input (React Frontend):** The user interacts via the web interface (running on e.g., `localhost:5173`), uploading files or typing queries.
+2.  **API Call (FastAPI Backend):** The React frontend sends requests (file uploads, queries) to the FastAPI backend API (running on `localhost:8000`).
+3.  **Backend Processing:**
+    * **File Upload (`/chat-file`):**
+        * Calculates file hash, checks in-memory cache.
+        * *Cache Miss:* Saves temp file, uses OCR (PDF) or Docx2txtLoader (DOCX) to extract text, splits text, generates embeddings (on GPU), creates temporary Chroma vector store, stores in cache.
+        * *Cache Hit:* Retrieves existing vector store from cache.
+    * **Folder Chat (`/chat-folder`):** Uses the persistent Chroma vector store loaded at startup.
+    * **Knowledge Base Update (`/refresh-knowledge-base`, or on startup):** Scans the `KNOWLEDGE_BASE_PATH`, processes new files using OCR/Docx2txtLoader, splits, embeds, and adds them to the persistent Chroma store.
+4.  **Retrieval:** The backend uses the appropriate vector store (temporary or persistent) to find text chunks relevant to the user's query.
+5.  **Generation:** Relevant context and the original query are formatted into a prompt and sent to the local LLM (`phi3` via Ollama on `localhost:11434`).
+6.  **Response Synthesis:** The LLM generates an answer based *only* on the provided context.
+7.  **TTS (Optional):** The generated text response is converted to speech using the local Coqui TTS model (on GPU).
+8.  **API Response (FastAPI -> React):** The backend sends the text answer, source information, and the URL for the generated audio file back to the React frontend.
+9.  **Display (React Frontend):** The frontend displays the chat messages, source info, and provides an audio player.
 
-### Agentic Workflow Diagram
+
+<img width="500px" height="500px" alt="Arcitecture Diagram" src="https://github.com/user-attachments/assets/7b432ad4-d4a8-4ea0-a046-ee1479259592" />
 
 
 
-<img width="500px" height="500px" alt="Architecture diagram" src="https://github.com/user-attachments/assets/7e808cb1-96a6-4c5a-bc22-35cc4b81f75b" />
-
-## Workflow :-
-Query → Reason → Call RAG Tool → Retrieve → Generate Answer
 ---
 
 ## 🛠️ Tech Stack
 
-### 🧠 Tech Stack Overview
+### 💻 Frontend
 
-### 💻 Frontend & Backend Stack
+| Category             | Tools Used                                     |
+| :------------------- | :--------------------------------------------- |
+| **Framework** | React (v18+, TypeScript)                       |
+| **UI Library** | shadcn/ui                                      |
+| **Styling** | Tailwind CSS                                   |
+| **Animation** | Framer Motion                                  |
+| **3D Graphics** | React Three Fiber (R3F), Drei                  |
+| **State Management** | React Context API / useState & useEffect hooks |
+| **API Client** | Axios                                          |
+| **Build Tool** | Vite                                           |
 
-| **Frontend**        | **Tools Used** |
-|----------------------|----------------|
-| **Frontend Framework** | React (with functional components & hooks) |
-| **UI Styling**          | Tailwind CSS |
-| **State Management**    | React Context API / useState & useEffect hooks |
-| **Backend Language**    | Python |
-| **Backend Framework**   | Flask (serving API endpoints) |
+### 🔧 Backend
 
+| Category          | Tools Used             |
+| :---------------- | :--------------------- |
+| **Language** | Python (3.11+)         |
+| **API Framework** | FastAPI                |
+| **Server** | Uvicorn                |
+| **Dependencies** | `requirements.txt`     |
 
+### 🧠 AI / Processing
 
-| **Backend**              | **Tools Used** |
-|----------------------------|----------------|
-| **AI Orchestration**       | LangChain (`AgentExecutor`, `Tool`, `create_react_agent`) |
-| **Local LLM (MCP/Synth)**  | Ollama (serving the `phi3` model) |
-| **Vector Database**        | ChromaDB |
-| **Embeddings**             | Sentence-Transformers (`all-MiniLM-L6-v2`) on **CUDA** |
-| **TTS Engine**             | Coqui TTS on **CUDA** |
+| Category                | Tools Used                                                       | Notes                     |
+| :---------------------- | :--------------------------------------------------------------- | :------------------------ |
+| **AI Orchestration** | LangChain (Loaders, Splitters, Embeddings, Prompts, VectorStores) | Direct RAG Chain          |
+| **Local LLM** | Ollama (serving `phi3` model)                                    | Runs on `localhost:11434` |
+| **Vector Database** | ChromaDB                                                         | Stores locally            |
+| **Embeddings Model** | Sentence-Transformers (`all-MiniLM-L6-v2`)                       | Runs on CUDA via PyTorch  |
+| **TTS Engine** | Coqui TTS                                                        | Runs on CUDA via PyTorch  |
+| **OCR Engine** | Tesseract OCR                                                    | System installation       |
+| **PDF -> Image (OCR)** | pdf2image / Poppler Utilities                                    | System installation       |
+| **DOCX Loader** | Docx2txtLoader (`langchain_community`)                           | Python library            |
 
 ---
 
@@ -90,53 +114,105 @@ Query → Reason → Call RAG Tool → Retrieve → Generate Answer
 
 ### Prerequisites
 
-* **Python 3.11**
-* An **NVIDIA GPU** with at least 6GB of VRAM
-* **Ollama** installed and running (`ollama serve`)
+* **Python 3.11+**
+* **Node.js & npm** (or yarn/bun) for the frontend.
+* An **NVIDIA GPU** with CUDA installed (Recommended for GPU acceleration of embeddings/TTS, CPU fallback possible but slower). Check PyTorch compatibility.
+* **Ollama** installed and running (`ollama serve`). [Link to Ollama](https://ollama.com/)
+* **Tesseract OCR Engine** installed AND **added to your system PATH**. [Link to Tesseract Installers](https://github.com/UB-Mannheim/tesseract/wiki)
+* **Poppler Utilities** installed AND **added to your system PATH**. [Link to Windows Poppler Binaries](https://github.com/oschwartz10612/poppler-windows/releases) (or use package manager like `brew` or `apt`).
 
 ### Installation Guide
 
-This process must be followed carefully to ensure the entire system runs **offline**.
+Perform these steps once with an internet connection to download models. Afterward, the system can run offline.
 
-**1. Setup Python Environment & Dependencies**
-* Create and activate a new, clean Python virtual environment (e.g., `venv_agent`).
-* **Install PyTorch for CUDA 12.1** (requires intermittent internet):
-    ```sh
+**1. Setup Backend (Python Environment & Dependencies)**
+
+* Clone this repository.
+* Navigate to the backend directory (where `app.py` resides).
+* Create and activate a Python virtual environment:
+    ```bash
+    python -m venv venv_py11
+    # Windows:
+    .\venv_py11\Scripts\activate
+    # Linux/macOS:
+    # source venv_py11/bin/activate
+    ```
+* **Install PyTorch for your CUDA version** (check compatibility at [PyTorch Get Started](https://pytorch.org/get-started/locally/)):
+    ```bash
+    # Example for CUDA 12.1:
     pip install torch torchvision torchaudio --index-url [https://download.pytorch.org/whl/cu121](https://download.pytorch.org/whl/cu121)
+    # Example for CPU only (if no compatible GPU):
+    # pip install torch torchvision torchaudio
     ```
-* **Install Requirements & Agent Dependencies:** Ensure `langchain-agents` is installed along with your `requirements.txt`:
-    ```sh
+* **Install Python Requirements:**
+    ```bash
     pip install -r requirements.txt
-    pip install langchain-agents
+    pip install pytesseract pdf2image Pillow # For OCR
+    # Note: langchain-agents is NOT needed for this version
     ```
 
-**2. Setup Local LLM & AI Models**
-* Pull the required LLM:
-    ```sh
+**2. Setup Frontend (React)**
+
+* Navigate to your separate frontend project directory (e.g., `rag-frontend`).
+* Install Node.js dependencies:
+    ```bash
+    npm install
+    # or yarn install / bun install
+    ```
+
+**3. Setup Local LLM & Download AI Models**
+
+* Pull the required LLM via Ollama (if not already done):
+    ```bash
     ollama pull phi3
     ```
-* Run your pre-download script (`setup.py`) to cache all other models locally:
-    ```sh
-    python setup.py
+* **Download Embeddings & TTS Models:** Run the backend server **once** while connected to the internet. This allows LangChain and Coqui TTS to download and cache the necessary models. Start it with:
+    ```bash
+    # Make sure backend venv is active
+    python -m uvicorn app:app --reload
     ```
+    Wait until you see messages confirming the embedding model and TTS model have loaded (or failed to load). You can then stop the server (`Ctrl+C`). Subsequent runs can be offline. *Alternatively, modify/create a `setup.py` script to explicitly download/cache these.*
+
+**4. Configuration**
+
+* **Knowledge Base:** Place your `.pdf` and `.docx` files into the folder specified by `KNOWLEDGE_BASE_PATH` in `app.py`.
+* **Tesseract Path:** If Tesseract is *not* in your system PATH, you **must** uncomment and set the correct path for `pytesseract.pytesseract.tesseract_cmd` near the top of `app.py`.
+* **Poppler Path:** If Poppler is *not* in your system PATH, ensure the `poppler_path` argument in the `convert_from_path` function call within `extract_text_with_ocr` in `app.py` points correctly to your Poppler `bin` directory.
 
 ---
 
 ## 💻 Usage & Demo
 
-1.  Make sure your **Ollama server is running** (`ollama serve`) in the background.
-2.  Start the Streamlit app from your terminal:
+1.  **Start Ollama:** Ensure the Ollama service is running. In a terminal:
     ```sh
-    streamlit run app.py
+    ollama serve
     ```
-3.  **To Demo Agentic RAG:** Use the "Chat with a Folder" mode.
-    * **Test the Agent:** Input a complex, multi-step query (e.g., "What was the revenue in the Q2 report, and which document lists the security risks?").
-    * **Crucially:** The terminal running Streamlit will display the **Agent's Thought/Action/Observation** log (`verbose=True`), demonstrating the Agent calling the RAG Tool multiple times.
-4.  **Verify Grounding:** The final answer in the UI will contain the required citations, demonstrating the **Grounded & Verifiable Answers** feature.
+    (Leave this running).
+2.  **Start Backend:** Open a **new terminal**, navigate to the backend directory, activate the venv, and run:
+    ```bash
+    python -m uvicorn app:app --reload
+    ```
+    Keep this terminal open to monitor logs.
+3.  **Start Frontend:** Open **another new terminal**, navigate to the frontend directory, and run:
+    ```bash
+    npm run dev
+    # or yarn dev / bun dev
+    ```
+4.  **Access App:** Open your browser to the URL provided by Vite (e.g., `http://localhost:5173`).
+
+**Demo:**
+
+* **Folder Chat:** Select "Chat with Knowledge Base". Ask questions about the documents placed in your `KNOWLEDGE_BASE_PATH`. Check the backend logs to see files being processed if they are new.
+* **Single File Chat:** Select "Upload Document". Upload a `.pdf` (including scanned ones) or `.docx`. Ask a question. Upload the *same* file again and ask another question – observe the backend logs showing a "Cache hit" for faster processing.
+* **Verify Sources:** Note the source file/page number displayed with AI answers (accuracy depends on OCR quality for PDFs).
+* **Audio Output:** Click the play button on AI messages to hear the TTS output (if the TTS model loaded successfully).
 
 ---
 
 ## 🛣️ Future Work
 
-* **Agentic Data Automation:** Fully implement the **Local Data Connector Tool** for the Agent to securely synchronize files from services like Google Drive and Gmail to the local archive.
-* **Multimodal RAG:** Integrate the originally planned Image Q&A and Audio Ingestion using Vision-Language Models (like `bakllava`) and speech-to-text (**Whisper**).
+* **Implement Agentic Workflow (ReAct):** Upgrade the backend to use LangChain Agents (`AgentExecutor`, `Tool`, `create_react_agent`) to handle more complex, multi-step queries as originally envisioned.
+* **Multimodal RAG:** Integrate Vision-Language Models (e.g., `llava`, `bakllava` via Ollama) for image understanding/Q&A and add speech-to-text (e.g., **Whisper**) for audio input/processing.
+* **Improve Caching:** Implement more robust/persistent caching for temporary vector stores instead of just in-memory.
+* **UI Enhancements:** Add chat history, theme persistence, and refine UI interactions.
+* **Error Handling:** Improve feedback to the user in the frontend when backend errors occur (e.g., OCR failures, model connection issues).
